@@ -5,27 +5,27 @@ import com.bloggingapp.bloggingapp.users.dtos.LoginUserDto;
 import com.bloggingapp.bloggingapp.users.dtos.UserResponseDto;
 import com.bloggingapp.bloggingapp.users.exceptions.InvalidPasswordException;
 import com.bloggingapp.bloggingapp.users.exceptions.UserNotFoundException;
-import com.bloggingapp.bloggingapp.users.mappers.UserMapper;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
         this.userRepository = userRepository;
-        this.userMapper = UserMapper.INSTANCE;
         this.passwordEncoder = passwordEncoder;
+        this.modelMapper = modelMapper;
     }
 
     public UserResponseDto createUser(CreateUserRequestDto createUserRequestDto) {
-        UserEntity userEntity = userMapper.mapCreateUserRequestDtoToUserEntity(createUserRequestDto);
+        UserEntity userEntity = modelMapper.map(createUserRequestDto, UserEntity.class);
         userEntity.setPassword(passwordEncoder.encode(createUserRequestDto.getPassword()));
         UserEntity savedUserEntity = userRepository.save(userEntity);
-        return userMapper.mapUserEntityToUserResponseDto(savedUserEntity);
+        return modelMapper.map(savedUserEntity, UserResponseDto.class);
     }
 
     public UserResponseDto verifyUser(LoginUserDto loginUserDto) {
@@ -36,6 +36,6 @@ public class UserService {
         if(!passwordEncoder.matches(loginUserDto.getPassword(), userEntity.getPassword())) {
             throw new InvalidPasswordException();
         }
-        return userMapper.mapUserEntityToUserResponseDto(userEntity);
+        return modelMapper.map(userEntity, UserResponseDto.class);
     }
 }
