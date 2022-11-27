@@ -1,4 +1,4 @@
-package com.bloggingapp.bloggingapp.security;
+package com.bloggingapp.bloggingapp.security.authtoken;
 
 import com.bloggingapp.bloggingapp.users.UserEntity;
 import lombok.Getter;
